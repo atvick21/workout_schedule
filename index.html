@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Workout Plan</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f11;
+    --surface: #1a1a1f;
+    --surface2: #222228;
+    --surface3: #2a2a32;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --text: #f0eff4;
+    --muted: #888890;
+    --faint: #444450;
+    --gym: #a78bfa;
+    --gym-bg: rgba(167,139,250,0.12);
+    --outdoor: #6ee7b7;
+    --outdoor-bg: rgba(110,231,183,0.10);
+    --home: #60a5fa;
+    --home-bg: rgba(96,165,250,0.10);
+    --rest: #94a3b8;
+    --rest-bg: rgba(148,163,184,0.10);
+    --accent: #a78bfa;
+    --green: #6ee7b7;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; line-height: 1.5; min-height: 100vh; }
+
+  .hero { padding: 48px 20px 20px; background: linear-gradient(180deg, #1a1025 0%, var(--bg) 100%); }
+  .hero-label { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.12em; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; }
+  .hero-title { font-size: 28px; font-weight: 600; line-height: 1.2; margin-bottom: 4px; }
+  .hero-sub { color: var(--muted); font-size: 13px; }
+
+  .macros { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 20px; }
+  .macro-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: 12px; padding: 12px 10px; text-align: center; }
+  .macro-card .val { font-size: 20px; font-weight: 600; color: var(--text); line-height: 1; }
+  .macro-card .lbl { font-size: 10px; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.05em; font-family: 'DM Mono', monospace; }
+  .macro-card.cal .val { color: var(--accent); }
+
+  .tabs { display: flex; gap: 6px; padding: 0 12px 16px; }
+  .tab { flex: 1; padding: 8px 4px; border-radius: 10px; border: 0.5px solid var(--border); background: var(--surface); color: var(--muted); font-size: 12px; font-weight: 500; font-family: 'DM Mono', monospace; text-align: center; cursor: pointer; transition: all 0.15s; }
+  .tab.active { background: var(--gym-bg); border-color: rgba(167,139,250,0.3); color: var(--gym); }
+
+  .section-title { padding: 4px 20px 12px; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; color: var(--faint); font-family: 'DM Mono', monospace; }
+
+  .day-card { margin: 0 12px 10px; background: var(--surface); border: 0.5px solid var(--border); border-radius: 16px; overflow: hidden; }
+  .day-card.expanded .body { display: block; }
+  .day-header { display: flex; align-items: center; gap: 12px; padding: 14px 16px; cursor: pointer; user-select: none; }
+  .day-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .day-info { flex: 1; min-width: 0; }
+  .day-name { font-size: 15px; font-weight: 600; color: var(--text); }
+  .day-focus { font-size: 12px; color: var(--muted); margin-top: 1px; }
+  .day-badge { font-size: 10px; font-weight: 500; padding: 3px 9px; border-radius: 20px; font-family: 'DM Mono', monospace; white-space: nowrap; }
+  .badge-gym { color: var(--gym); background: var(--gym-bg); }
+  .badge-outdoor { color: var(--outdoor); background: var(--outdoor-bg); }
+  .badge-home { color: var(--home); background: var(--home-bg); }
+  .badge-rest { color: var(--rest); background: var(--rest-bg); }
+  .chevron { color: var(--faint); font-size: 16px; transition: transform 0.2s; flex-shrink: 0; }
+  .day-card.expanded .chevron { transform: rotate(180deg); }
+
+  .body { display: none; border-top: 0.5px solid var(--border); }
+  .ex-section { padding: 10px 16px 4px; font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; color: var(--faint); font-family: 'DM Mono', monospace; }
+
+  .ex-block { border-bottom: 0.5px solid var(--border); }
+  .ex-block:last-child { border-bottom: none; }
+  .ex-top { display: flex; justify-content: space-between; align-items: center; padding: 9px 16px 5px; }
+  .ex-name { font-size: 13px; color: var(--text); flex: 1; }
+  .ex-detail { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; white-space: nowrap; margin-left: 8px; }
+
+  .log-area { padding: 0 16px 12px; }
+  .col-headers { display: grid; grid-template-columns: 24px 1fr 1fr 28px; gap: 6px; margin-bottom: 4px; padding: 0 2px; }
+  .col-hdr { font-size: 9px; color: var(--faint); font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: 0.06em; text-align: center; }
+  .log-set-row { display: grid; grid-template-columns: 24px 1fr 1fr 28px; gap: 6px; align-items: center; margin-bottom: 5px; }
+  .set-num { font-size: 10px; color: var(--faint); font-family: 'DM Mono', monospace; text-align: center; }
+  .set-input { background: var(--surface3); border: 0.5px solid var(--border2); border-radius: 8px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 13px; padding: 6px 4px; text-align: center; outline: none; -webkit-appearance: none; appearance: none; width: 100%; }
+  .set-input:focus { border-color: rgba(167,139,250,0.6); background: #32323e; }
+  .set-input::placeholder { color: var(--faint); font-size: 11px; }
+  .set-check { font-size: 13px; color: var(--green); text-align: center; opacity: 0; transition: opacity 0.3s; }
+  .set-check.show { opacity: 1; }
+
+  .log-actions { display: flex; gap: 6px; margin-top: 8px; }
+  .btn-save { background: var(--gym-bg); border: 0.5px solid rgba(167,139,250,0.3); border-radius: 8px; color: var(--gym); font-size: 12px; font-family: 'DM Mono', monospace; padding: 7px 14px; cursor: pointer; flex: 1; }
+  .btn-save:active { opacity: 0.7; }
+  .btn-clear { background: transparent; border: 0.5px solid var(--border2); border-radius: 8px; color: var(--muted); font-size: 12px; font-family: 'DM Mono', monospace; padding: 7px 12px; cursor: pointer; }
+  .btn-clear:active { opacity: 0.7; }
+
+  .save-confirm { font-size: 11px; color: var(--green); font-family: 'DM Mono', monospace; text-align: center; margin-top: 6px; opacity: 0; transition: opacity 0.3s; height: 16px; }
+  .save-confirm.show { opacity: 1; }
+
+  .past-entries { margin-top: 10px; border-top: 0.5px solid var(--border); padding-top: 8px; }
+  .past-title { font-size: 9px; color: var(--faint); font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 5px; }
+  .past-entry { display: flex; justify-content: space-between; align-items: baseline; padding: 3px 0; }
+  .past-date { font-size: 10px; color: var(--faint); font-family: 'DM Mono', monospace; flex-shrink: 0; margin-right: 8px; }
+  .past-sets-txt { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; flex: 1; }
+  .past-best { font-size: 10px; color: var(--accent); font-family: 'DM Mono', monospace; flex-shrink: 0; margin-left: 6px; }
+
+  /* History tab */
+  .history-view { padding: 0 12px 24px; }
+  .history-day-title { font-size: 12px; font-weight: 600; color: var(--muted); margin: 16px 4px 8px; font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: 0.06em; }
+  .history-ex-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: 12px; margin-bottom: 8px; overflow: hidden; }
+  .history-ex-name { font-size: 13px; font-weight: 500; color: var(--text); padding: 9px 12px 5px; }
+  .history-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 12px 4px; border-top: 0.5px solid var(--border); }
+  .history-row-date { font-size: 10px; color: var(--faint); font-family: 'DM Mono', monospace; }
+  .history-row-sets { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; }
+  .history-row-best { font-size: 10px; color: var(--accent); font-family: 'DM Mono', monospace; }
+  .no-history { font-size: 13px; color: var(--faint); text-align: center; padding: 48px 20px; font-family: 'DM Mono', monospace; line-height: 1.8; }
+
+  .note-card { margin: 0 12px 10px; background: var(--surface2); border: 0.5px solid var(--border); border-radius: 16px; padding: 14px 16px; }
+  .note-card p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .note-card strong { color: var(--text); font-weight: 500; }
+
+  .footer { padding: 24px 20px 52px; text-align: center; }
+  .footer p { font-size: 11px; color: var(--faint); font-family: 'DM Mono', monospace; }
+
+  .hidden { display: none !important; }
+
+  @media (min-width: 480px) {
+    .hero { padding: 60px 28px 24px; }
+    .macros { padding: 20px 28px; }
+    .tabs { padding: 0 16px 16px; }
+    .day-card, .note-card { margin-left: 16px; margin-right: 16px; }
+    .section-title { padding: 4px 28px 12px; }
+    .history-view { padding: 0 16px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-label">Weekly Plan</div>
+  <div class="hero-title">Your Workout<br>Schedule</div>
+  <div class="hero-sub">215 lbs → 190–200 lbs · Fat loss focus · 3× gym</div>
+</div>
+
+<div class="macros">
+  <div class="macro-card cal"><div class="val">2,450</div><div class="lbl">kcal</div></div>
+  <div class="macro-card"><div class="val">190g</div><div class="lbl">protein</div></div>
+  <div class="macro-card"><div class="val">215g</div><div class="lbl">carbs</div></div>
+  <div class="macro-card"><div class="val">70g</div><div class="lbl">fat</div></div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('schedule')">Schedule</div>
+  <div class="tab" onclick="showTab('history')">History</div>
+  <div class="tab" onclick="showTab('notes')">Notes</div>
+</div>
+
+<!-- ======= SCHEDULE TAB ======= -->
+<div id="tab-schedule">
+<div class="section-title">Tap a day to log your sets</div>
+
+<!-- MONDAY -->
+<div class="day-card" id="day-mon">
+  <div class="day-header" onclick="toggleDay('mon')">
+    <div class="day-dot" style="background:var(--gym)"></div>
+    <div class="day-info"><div class="day-name">Monday</div><div class="day-focus">Push · Chest / Shoulders / Triceps</div></div>
+    <span class="day-badge badge-gym">Gym</span><span class="chevron">›</span>
+  </div>
+  <div class="body" id="body-mon"></div>
+</div>
+
+<!-- TUESDAY -->
+<div class="day-card" id="day-tue">
+  <div class="day-header" onclick="toggleDay('tue')">
+    <div class="day-dot" style="background:var(--outdoor)"></div>
+    <div class="day-info"><div class="day-name">Tuesday</div><div class="day-focus">Zone 2 Cardio · 30–45 min</div></div>
+    <span class="day-badge badge-outdoor">Outdoor</span><span class="chevron">›</span>
+  </div>
+  <div class="body">
+    <div class="ex-section">Session</div>
+    <div class="ex-block"><div class="ex-top"><span class="ex-name">Steady-state run, bike, or brisk walk</span><span class="ex-detail">30–45 min</span></div></div>
+    <div class="ex-block"><div class="ex-top"><span class="ex-name">Target: 60–70% max HR</span><span class="ex-detail">fat-burn zone</span></div></div>
+    <div class="ex-section">Optional finish</div>
+    <div class="ex-block"><div class="ex-top"><span class="ex-name">Plank</span><span class="ex-detail">2 × 45s</span></div></div>
+    <div class="ex-block"><div class="ex-top"><span class="ex-name">Dead bug</span><span class="ex-detail">2 × 10/side</span></div></div>
+    <div class="ex-block" style="border:none"><div class="ex-top"><span class="ex-name">Hollow hold</span><span class="ex-detail">2 × 30s</span></div></div>
+  </div>
+</div>
+
+<!-- WEDNESDAY -->
+<div class="day-card" id="day-wed">
+  <div class="day-header" onclick="toggleDay('wed')">
+    <div class="day-dot" style="background:var(--gym)"></div>
+    <div class="day-info"><div class="day-name">Wednesday</div><div class="day-focus">Pull · Back / Biceps</div></div>
+    <span class="day-badge badge-gym">Gym</span><span class="chevron">›</span>
+  </div>
+  <div class="body" id="body-wed"></div>
+</div>
+
+<!-- THURSDAY -->
+<div class="day-card" id="day-thu">
+  <div class="day-header" onclick="toggleDay('thu')">
+    <div class="day-dot" style="background:var(--home)"></div>
+    <div class="day-info"><div class="day-name">Thursday</div><div class="day-focus">Active Recovery · Mobility</div></div>
+    <span class="day-badge badge-home">Home</span><span class="chevron">›</span>
+  </div>
+  <div class="body">
+    <div class="ex-section">Mobility work</div>
+    <div class="ex-block"><div class="ex-top"><span class="ex-name">Hip flexor stretch</span><span class="ex-detail">2 × 60s/side</span></div></div>
+    <div class="ex-block"><div class="ex-top"><span class="ex-name">Hamstring stretch</span><span class="ex-detail">2 × 60s/side</span></div></div>
+    <div class="ex-block"><div class="ex-top"><span class="ex-name">Thoracic spine mobility</span><span class="ex-detail">2 × 10 reps</span></div></div>
+    <div class="ex-block" style="border:none"><div class="ex-top"><span class="ex-name">Light walk or yoga flow</span><span class="ex-detail">10–20 min</span></div></div>
+  </div>
+</div>
+
+<!-- FRIDAY -->
+<div class="day-card" id="day-fri">
+  <div class="day-header" onclick="toggleDay('fri')">
+    <div class="day-dot" style="background:var(--gym)"></div>
+    <div class="day-info"><div class="day-name">Friday</div><div class="day-focus">Legs · Quads / Hamstrings / Glutes</div></div>
+    <span class="day-badge badge-gym">Gym</span><span class="chevron">›</span>
+  </div>
+  <div class="body" id="body-fri"></div>
+</div>
+
+<!-- SATURDAY -->
+<div class="day-card" id="day-sat">
+  <div class="day-header" onclick="toggleDay('sat')">
+    <div class="day-dot" style="background:var(--outdoor)"></div>
+    <div class="day-info"><div class="day-name">Saturday</div><div class="day-focus">HIIT Circuit · 25–35 min</div></div>
+    <span class="day-badge badge-outdoor">Outdoor</span><span class="chevron">›</span>
+  </div>
+  <div class="body">
+    <div class="ex-section">Sprints</div>
+    <div class="ex-block"><div class="ex-top"><span class="ex-name">Sprint intervals</span><span class="ex-detail">8 × 20s on / 40s off</span></div></div>
+    <div class="ex-section">Circuit (2–3 rounds)</div>
+    <div class="ex-block"><div class="ex-top"><span class="ex-name">Push-ups</span><span class="ex-detail">15 reps</span></div></div>
+    <div class="ex-block"><div class="ex-top"><span class="ex-name">Jump squats</span><span class="ex-detail">12 reps</span></div></div>
+    <div class="ex-block"><div class="ex-top"><span class="ex-name">Mountain climbers</span><span class="ex-detail">20/side</span></div></div>
+    <div class="ex-block"><div class="ex-top"><span class="ex-name">Burpees</span><span class="ex-detail">10 reps</span></div></div>
+    <div class="ex-block" style="border:none"><div class="ex-top"><span class="ex-name">Cool-down walk</span><span class="ex-detail">10 min</span></div></div>
+  </div>
+</div>
+
+<!-- SUNDAY -->
+<div class="day-card" id="day-sun">
+  <div class="day-header" onclick="toggleDay('sun')">
+    <div class="day-dot" style="background:var(--rest)"></div>
+    <div class="day-info"><div class="day-name">Sunday</div><div class="day-focus">Full Rest · Recovery</div></div>
+    <span class="day-badge badge-rest">Rest</span><span class="chevron">›</span>
+  </div>
+  <div class="body">
+    <div class="ex-section">Recovery</div>
+    <div class="ex-block"><div class="ex-top"><span class="ex-name">Casual walking only</span><span class="ex-detail">steps count</span></div></div>
+    <div class="ex-block" style="border:none"><div class="ex-top"><span class="ex-name">Sleep 7–9 hours</span><span class="ex-detail">priority</span></div></div>
+  </div>
+</div>
+
+<div style="height:20px"></div>
+</div><!-- end schedule tab -->
+
+<!-- ======= HISTORY TAB ======= -->
+<div id="tab-history" class="hidden">
+  <div class="history-view" id="history-content">
+    <div class="no-history">No workouts logged yet.<br>Open a gym day and save your sets.</div>
+  </div>
+</div>
+
+<!-- ======= NOTES TAB ======= -->
+<div id="tab-notes" class="hidden">
+  <div class="section-title" style="margin-top:4px;">Key reminders</div>
+  <div class="note-card"><p><strong>Progressive overload:</strong> Add weight or 1 rep each week on main lifts. Log every session.</p></div>
+  <div class="note-card"><p><strong>Protein first:</strong> Hit 190g even on rest days. Chicken, eggs, Greek yogurt, lean beef, cottage cheese, fish.</p></div>
+  <div class="note-card"><p><strong>Weight loss rate:</strong> Aim for 0.5–1.5 lbs/week. Losing more? Add 150–200 kcal/day to protect muscle.</p></div>
+  <div class="note-card"><p><strong>Your 10k steps</strong> burn an extra 400–500 kcal vs sedentary — this is your hidden advantage.</p></div>
+  <div class="note-card"><p><strong>Data is saved locally</strong> in your browser. Keep this file on your phone and open it in the same browser to retain your logs.</p></div>
+  <div class="footer"><p>Goal: 215 lbs → 190–200 lbs · ~12–20 weeks</p></div>
+</div>
+
+<script>
+const DAYS = {
+  mon: {
+    sections: [
+      { label: 'Compound lifts', exercises: [
+        { id: 'mon-bench',    name: 'Barbell bench press',       detail: '4 × 6–8',   sets: 4 },
+        { id: 'mon-ohp',      name: 'Overhead press (BB or DB)', detail: '3 × 8–10',  sets: 3 },
+        { id: 'mon-incline',  name: 'Incline dumbbell press',    detail: '3 × 10–12', sets: 3 },
+      ]},
+      { label: 'Accessories', exercises: [
+        { id: 'mon-lateral',  name: 'Lateral raises',            detail: '3 × 15',    sets: 3 },
+        { id: 'mon-pushdown', name: 'Tricep pushdowns',          detail: '3 × 12–15', sets: 3 },
+        { id: 'mon-ohtri',    name: 'Overhead tricep extension', detail: '2 × 12',    sets: 2 },
+      ]},
+    ]
+  },
+  wed: {
+    sections: [
+      { label: 'Compound lifts', exercises: [
+        { id: 'wed-row',    name: 'Barbell or DB rows',          detail: '4 × 6–8',   sets: 4 },
+        { id: 'wed-lat',    name: 'Lat pulldown / pull-ups',     detail: '3 × 8–10',  sets: 3 },
+        { id: 'wed-cable',  name: 'Seated cable row',            detail: '3 × 10–12', sets: 3 },
+      ]},
+      { label: 'Accessories', exercises: [
+        { id: 'wed-face',   name: 'Face pulls',                  detail: '3 × 15',    sets: 3 },
+        { id: 'wed-curl',   name: 'Barbell or DB curl',          detail: '3 × 10–12', sets: 3 },
+        { id: 'wed-hammer', name: 'Hammer curls',                detail: '2 × 12',    sets: 2 },
+      ]},
+    ]
+  },
+  fri: {
+    sections: [
+      { label: 'Compound lifts', exercises: [
+        { id: 'fri-squat', name: 'Barbell back squat',     detail: '4 × 5–8',   sets: 4 },
+        { id: 'fri-rdl',   name: 'Romanian deadlift',      detail: '3 × 8–10',  sets: 3 },
+        { id: 'fri-press', name: 'Leg press',              detail: '3 × 10–12', sets: 3 },
+      ]},
+      { label: 'Accessories', exercises: [
+        { id: 'fri-lunge', name: 'Walking lunges',         detail: '3 × 12/leg', sets: 3 },
+        { id: 'fri-curl',  name: 'Leg curl (machine)',     detail: '3 × 12',     sets: 3 },
+        { id: 'fri-calf',  name: 'Calf raises',            detail: '3 × 15–20',  sets: 3 },
+      ]},
+    ]
+  }
+};
+
+const DAY_LABELS = {
+  mon: 'Monday — Push',
+  wed: 'Wednesday — Pull',
+  fri: 'Friday — Legs'
+};
+
+function todayStr() {
+  return new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function loadLogs(exId) {
+  try { return JSON.parse(localStorage.getItem('wl_' + exId)) || []; } catch(e) { return []; }
+}
+
+function saveLogs(exId, logs) {
+  localStorage.setItem('wl_' + exId, JSON.stringify(logs));
+}
+
+function buildDayBody(dayId) {
+  const body = document.getElementById('body-' + dayId);
+  if (!body || !DAYS[dayId]) return;
+  if (body.dataset.built) return;
+  body.dataset.built = '1';
+
+  let html = '';
+  DAYS[dayId].sections.forEach(sec => {
+    html += `<div class="ex-section">${sec.label}</div>`;
+    sec.exercises.forEach((ex, ei) => {
+      const isLast = (sec === DAYS[dayId].sections[DAYS[dayId].sections.length-1]) && ei === sec.exercises.length-1;
+      html += `<div class="ex-block" ${isLast ? 'style="border:none"' : ''}>
+        <div class="ex-top"><span class="ex-name">${ex.name}</span><span class="ex-detail">${ex.detail}</span></div>
+        <div class="log-area" id="la-${ex.id}"></div>
+      </div>`;
+    });
+  });
+  body.innerHTML = html;
+
+  // Now build inputs for each exercise
+  DAYS[dayId].sections.forEach(sec => {
+    sec.exercises.forEach(ex => buildInputs(ex.id, ex.sets));
+  });
+}
+
+function buildInputs(exId, numSets) {
+  const la = document.getElementById('la-' + exId);
+  if (!la) return;
+
+  const logs = loadLogs(exId);
+  const todayEntry = logs.find(l => l.date === todayStr());
+  const prefill = todayEntry ? todayEntry.sets : [];
+
+  let inputsHtml = `<div class="col-headers">
+    <div></div>
+    <div class="col-hdr">weight (lbs)</div>
+    <div class="col-hdr">reps</div>
+    <div></div>
+  </div>`;
+
+  for (let i = 0; i < numSets; i++) {
+    const wt = prefill[i] ? prefill[i].w : '';
+    const rp = prefill[i] ? prefill[i].r : '';
+    inputsHtml += `<div class="log-set-row">
+      <span class="set-num">S${i+1}</span>
+      <input class="set-input" type="number" inputmode="decimal" placeholder="—" value="${wt}" id="w-${exId}-${i}" min="0" step="2.5">
+      <input class="set-input" type="number" inputmode="numeric" placeholder="—" value="${rp}" id="r-${exId}-${i}" min="0" step="1">
+      <span class="set-check" id="chk-${exId}-${i}">✓</span>
+    </div>`;
+  }
+
+  inputsHtml += `<div class="log-actions">
+    <button class="btn-save" onclick="saveLog('${exId}', ${numSets})">Save sets</button>
+    <button class="btn-clear" onclick="clearLog('${exId}', ${numSets})">Clear</button>
+  </div>
+  <div class="save-confirm" id="conf-${exId}">Saved!</div>
+  <div id="past-${exId}"></div>`;
+
+  la.innerHTML = inputsHtml;
+  renderPast(exId);
+}
+
+function saveLog(exId, numSets) {
+  const sets = [];
+  for (let i = 0; i < numSets; i++) {
+    const w = (document.getElementById('w-' + exId + '-' + i) || {}).value || '';
+    const r = (document.getElementById('r-' + exId + '-' + i) || {}).value || '';
+    sets.push({ w, r });
+  }
+  const hasSomething = sets.some(s => s.w || s.r);
+  if (!hasSomething) return;
+
+  const logs = loadLogs(exId).filter(l => l.date !== todayStr());
+  logs.unshift({ date: todayStr(), sets });
+  if (logs.length > 30) logs.length = 30;
+  saveLogs(exId, logs);
+
+  // Show checkmarks
+  for (let i = 0; i < numSets; i++) {
+    const chk = document.getElementById('chk-' + exId + '-' + i);
+    if (chk && sets[i] && (sets[i].w || sets[i].r)) {
+      chk.classList.add('show');
+      setTimeout(() => chk.classList.remove('show'), 1800);
+    }
+  }
+  const conf = document.getElementById('conf-' + exId);
+  if (conf) { conf.classList.add('show'); setTimeout(() => conf.classList.remove('show'), 1800); }
+
+  renderPast(exId);
+}
+
+function clearLog(exId, numSets) {
+  for (let i = 0; i < numSets; i++) {
+    const w = document.getElementById('w-' + exId + '-' + i);
+    const r = document.getElementById('r-' + exId + '-' + i);
+    if (w) w.value = '';
+    if (r) r.value = '';
+  }
+  const logs = loadLogs(exId).filter(l => l.date !== todayStr());
+  saveLogs(exId, logs);
+  renderPast(exId);
+}
+
+function renderPast(exId) {
+  const el = document.getElementById('past-' + exId);
+  if (!el) return;
+  const logs = loadLogs(exId);
+  const recent = logs.filter(l => l.date !== todayStr()).slice(0, 4);
+  if (!recent.length) { el.innerHTML = ''; return; }
+
+  let html = '<div class="past-entries"><div class="past-title">Previous sessions</div>';
+  recent.forEach(entry => {
+    const parts = entry.sets
+      .filter(s => s.w || s.r)
+      .map(s => [s.w ? s.w + 'lb' : '', s.r ? s.r + 'r' : ''].filter(Boolean).join('/'));
+    const setsStr = parts.join(' · ');
+    const best = Math.max(...entry.sets.map(s => parseFloat(s.w) || 0));
+    html += `<div class="past-entry">
+      <span class="past-date">${entry.date}</span>
+      <span class="past-sets-txt">${setsStr}</span>
+      ${best > 0 ? `<span class="past-best">${best}lb</span>` : ''}
+    </div>`;
+  });
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+function toggleDay(dayId) {
+  const card = document.getElementById('day-' + dayId);
+  const wasExpanded = card.classList.contains('expanded');
+  card.classList.toggle('expanded');
+  if (!wasExpanded) buildDayBody(dayId);
+}
+
+function showTab(name) {
+  ['schedule','history','notes'].forEach(t => {
+    document.getElementById('tab-' + t).classList.toggle('hidden', t !== name);
+  });
+  document.querySelectorAll('.tab').forEach((el, i) => {
+    el.classList.toggle('active', ['schedule','history','notes'][i] === name);
+  });
+  if (name === 'history') renderHistory();
+}
+
+function renderHistory() {
+  const container = document.getElementById('history-content');
+  let html = '';
+  let hasAny = false;
+
+  for (const [dayId, dayData] of Object.entries(DAYS)) {
+    let dayHtml = '';
+    dayData.sections.forEach(sec => {
+      sec.exercises.forEach(ex => {
+        const logs = loadLogs(ex.id);
+        if (!logs.length) return;
+        hasAny = true;
+        let rowsHtml = logs.slice(0, 8).map(entry => {
+          const parts = entry.sets
+            .filter(s => s.w || s.r)
+            .map(s => [s.w ? s.w+'lb' : '', s.r ? s.r+'r' : ''].filter(Boolean).join('/'));
+          const best = Math.max(...entry.sets.map(s => parseFloat(s.w) || 0));
+          return `<div class="history-row">
+            <span class="history-row-date">${entry.date}</span>
+            <span class="history-row-sets">${parts.join(' · ')}</span>
+            ${best > 0 ? `<span class="history-row-best">${best}lb</span>` : ''}
+          </div>`;
+        }).join('');
+        dayHtml += `<div class="history-ex-card"><div class="history-ex-name">${ex.name}</div>${rowsHtml}</div>`;
+      });
+    });
+    if (dayHtml) {
+      html += `<div class="history-day-title">${DAY_LABELS[dayId]}</div>${dayHtml}`;
+    }
+  }
+
+  container.innerHTML = hasAny
+    ? html
+    : '<div class="no-history">No workouts logged yet.<br>Open a gym day and save your sets.</div>';
+}
+</script>
+</body>
+</html>
