@@ -47,6 +47,18 @@
 
   .section-title { padding: 4px 20px 12px; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; color: var(--faint); font-family: 'DM Mono', monospace; }
 
+  /* Week overview strip — read-only context, runs live in Runna */
+  .week-strip { margin: 0 12px 18px; background: var(--surface); border: 0.5px solid var(--border); border-radius: 16px; overflow: hidden; }
+  .week-row { display: grid; grid-template-columns: 10px 36px 1fr; align-items: start; gap: 10px; padding: 9px 14px; border-bottom: 0.5px solid var(--border); }
+  .week-row:last-child { border-bottom: none; }
+  .week-row.norun { opacity: 0.55; }
+  .week-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
+  .week-day { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; padding-top: 2px; }
+  .week-gym { font-size: 13px; color: var(--text); }
+  .week-run { font-size: 11px; color: var(--outdoor); font-family: 'DM Mono', monospace; margin-top: 2px; opacity: 0.8; }
+  .week-rest { font-size: 13px; color: var(--muted); }
+  .week-foot { padding: 9px 14px; font-size: 10px; color: var(--faint); font-family: 'DM Mono', monospace; border-top: 0.5px solid var(--border); background: rgba(255,255,255,0.015); }
+
   .day-card { margin: 0 12px 10px; background: var(--surface); border: 0.5px solid var(--border); border-radius: 16px; overflow: hidden; }
   .day-card.expanded .body { display: block; }
   .day-header { display: flex; align-items: center; gap: 12px; padding: 14px 16px; cursor: pointer; user-select: none; }
@@ -101,7 +113,9 @@
   /* History tab */
   .history-view { padding: 0 12px 24px; }
   .history-day-title { font-size: 12px; font-weight: 600; color: var(--muted); margin: 16px 4px 8px; font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: 0.06em; }
+  .history-note { font-size: 11px; color: var(--faint); margin: -4px 4px 8px; line-height: 1.5; }
   .history-ex-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: 12px; margin-bottom: 8px; overflow: hidden; }
+  .history-ex-card.archived { opacity: 0.7; }
   .history-ex-name { font-size: 13px; font-weight: 500; color: var(--text); padding: 9px 12px 5px; }
   .history-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 12px 4px; border-top: 0.5px solid var(--border); }
   .history-row-date { font-size: 10px; color: var(--faint); font-family: 'DM Mono', monospace; }
@@ -111,7 +125,22 @@
 
   .note-card { margin: 0 12px 10px; background: var(--surface2); border: 0.5px solid var(--border); border-radius: 16px; padding: 14px 16px; }
   .note-card p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .note-card p + p { margin-top: 8px; }
   .note-card strong { color: var(--text); font-weight: 500; }
+
+  .cyc-table { width: 100%; border-collapse: collapse; font-family: 'DM Mono', monospace; font-size: 12px; margin-top: 10px; }
+  .cyc-table th { text-align: left; font-weight: 500; font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); padding: 0 0 6px; }
+  .cyc-table th.num, .cyc-table td.num { text-align: right; }
+  .cyc-table td { padding: 5px 0; border-top: 0.5px solid var(--border); color: var(--muted); }
+  .cyc-table td.day { color: var(--text); width: 32px; }
+  .cyc-table tr.peak td { color: var(--accent); }
+  .cyc-table tfoot td { color: var(--faint); font-size: 11px; }
+
+  .backup-actions { display: flex; gap: 8px; margin-top: 12px; }
+  .backup-status { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--muted); margin-top: 10px; opacity: 0.75; }
+  .backup-msg { font-size: 12px; font-family: 'DM Mono', monospace; color: var(--gym); margin-top: 10px; min-height: 0; opacity: 0; transition: opacity 0.25s; }
+  .backup-msg.show { opacity: 1; }
+  .backup-msg.warn { color: #f0a868; }
 
   .footer { padding: 24px 20px 52px; text-align: center; }
   .footer p { font-size: 11px; color: var(--faint); font-family: 'DM Mono', monospace; }
@@ -122,7 +151,7 @@
     .hero { padding: 60px 28px 24px; }
     .macros { padding: 20px 28px; }
     .tabs { padding: 0 16px 16px; }
-    .day-card, .note-card { margin-left: 16px; margin-right: 16px; }
+    .day-card, .note-card, .week-strip { margin-left: 16px; margin-right: 16px; }
     .section-title { padding: 4px 28px 12px; }
     .history-view { padding: 0 16px 24px; }
   }
@@ -133,14 +162,14 @@
 <div class="hero">
   <div class="hero-label">Weekly Plan</div>
   <div class="hero-title">Your Workout<br>Schedule</div>
-  <div class="hero-sub">215 lbs → 190–200 lbs · Fat loss focus · 3× gym</div>
+  <div class="hero-sub">215 → 195 lbs · Half marathon Dec · 3× gym · 4× run</div>
 </div>
 
 <div class="macros">
-  <div class="macro-card cal"><div class="val">2,450</div><div class="lbl">kcal</div></div>
-  <div class="macro-card"><div class="val">190g</div><div class="lbl">protein</div></div>
-  <div class="macro-card"><div class="val">215g</div><div class="lbl">carbs</div></div>
-  <div class="macro-card"><div class="val">70g</div><div class="lbl">fat</div></div>
+  <div class="macro-card cal"><div class="val">2,850</div><div class="lbl">kcal</div></div>
+  <div class="macro-card"><div class="val">215g</div><div class="lbl">protein</div></div>
+  <div class="macro-card"><div class="val">315g</div><div class="lbl">carbs</div></div>
+  <div class="macro-card"><div class="val">80g</div><div class="lbl">fat</div></div>
 </div>
 
 <div class="tabs">
@@ -151,103 +180,77 @@
 
 <!-- ======= SCHEDULE TAB ======= -->
 <div id="tab-schedule">
-<div class="section-title">Tap a day to log your sets</div>
+
+<div class="section-title">The week</div>
+<div class="week-strip">
+  <div class="week-row">
+    <span class="week-dot" style="background:var(--gym)"></span>
+    <span class="week-day">Mon</span>
+    <span><span class="week-gym">Push — chest / shoulders / triceps + core</span></span>
+  </div>
+  <div class="week-row norun">
+    <span class="week-dot" style="background:var(--outdoor)"></span>
+    <span class="week-day">Tue</span>
+    <span><span class="week-run">Quality run — intervals, hills, or tempo</span></span>
+  </div>
+  <div class="week-row">
+    <span class="week-dot" style="background:var(--gym)"></span>
+    <span class="week-day">Wed</span>
+    <span><span class="week-gym">Lower body + core</span><div class="week-run">Easy distance — lift first, jog 2h+ later</div></span>
+  </div>
+  <div class="week-row norun">
+    <span class="week-dot" style="background:var(--rest)"></span>
+    <span class="week-day">Thu</span>
+    <span><span class="week-rest">Full rest — legs recover while DOMS peaks</span></span>
+  </div>
+  <div class="week-row">
+    <span class="week-dot" style="background:var(--gym)"></span>
+    <span class="week-day">Fri</span>
+    <span><span class="week-gym">Pull — back / biceps + core</span><div class="week-run">Easy distance</div></span>
+  </div>
+  <div class="week-row norun">
+    <span class="week-dot" style="background:var(--outdoor)"></span>
+    <span class="week-day">Sat</span>
+    <span><span class="week-run">Long run</span></span>
+  </div>
+  <div class="week-row norun">
+    <span class="week-dot" style="background:var(--rest)"></span>
+    <span class="week-day">Sun</span>
+    <span><span class="week-rest">Rest or walk</span></span>
+  </div>
+  <div class="week-foot">Runs are programmed in Runna — context only, nothing to log here.</div>
+</div>
+
+<div class="section-title">Tap a gym day to log your sets</div>
 
 <!-- MONDAY -->
 <div class="day-card" id="day-mon">
   <div class="day-header" onclick="toggleDay('mon')">
     <div class="day-dot" style="background:var(--gym)"></div>
-    <div class="day-info"><div class="day-name">Monday</div><div class="day-focus">Push · Chest / Shoulders / Triceps</div></div>
+    <div class="day-info"><div class="day-name">Monday</div><div class="day-focus">Push · Chest / Shoulders / Triceps + Core</div></div>
     <span class="day-badge badge-gym">Gym</span><span class="chevron">›</span>
   </div>
   <div class="body" id="body-mon"></div>
-</div>
-
-<!-- TUESDAY -->
-<div class="day-card" id="day-tue">
-  <div class="day-header" onclick="toggleDay('tue')">
-    <div class="day-dot" style="background:var(--outdoor)"></div>
-    <div class="day-info"><div class="day-name">Tuesday</div><div class="day-focus">Zone 2 Cardio · 30–45 min</div></div>
-    <span class="day-badge badge-outdoor">Outdoor</span><span class="chevron">›</span>
-  </div>
-  <div class="body">
-    <div class="ex-section">Session</div>
-    <div class="ex-block"><div class="ex-top"><span class="ex-name">Steady-state run, bike, or brisk walk</span><span class="ex-detail">30–45 min</span></div></div>
-    <div class="ex-block"><div class="ex-top"><span class="ex-name">Target: 60–70% max HR</span><span class="ex-detail">fat-burn zone</span></div></div>
-    <div class="ex-section">Optional finish</div>
-    <div class="ex-block"><div class="ex-top"><span class="ex-name">Plank</span><span class="ex-detail">2 × 45s</span></div></div>
-    <div class="ex-block"><div class="ex-top"><span class="ex-name">Dead bug</span><span class="ex-detail">2 × 10/side</span></div></div>
-    <div class="ex-block" style="border:none"><div class="ex-top"><span class="ex-name">Hollow hold</span><span class="ex-detail">2 × 30s</span></div></div>
-  </div>
 </div>
 
 <!-- WEDNESDAY -->
 <div class="day-card" id="day-wed">
   <div class="day-header" onclick="toggleDay('wed')">
     <div class="day-dot" style="background:var(--gym)"></div>
-    <div class="day-info"><div class="day-name">Wednesday</div><div class="day-focus">Pull · Back / Biceps</div></div>
+    <div class="day-info"><div class="day-name">Wednesday</div><div class="day-focus">Lower Body · Quads / Hams / Glutes + Core</div></div>
     <span class="day-badge badge-gym">Gym</span><span class="chevron">›</span>
   </div>
   <div class="body" id="body-wed"></div>
-</div>
-
-<!-- THURSDAY -->
-<div class="day-card" id="day-thu">
-  <div class="day-header" onclick="toggleDay('thu')">
-    <div class="day-dot" style="background:var(--home)"></div>
-    <div class="day-info"><div class="day-name">Thursday</div><div class="day-focus">Active Recovery · Mobility</div></div>
-    <span class="day-badge badge-home">Home</span><span class="chevron">›</span>
-  </div>
-  <div class="body">
-    <div class="ex-section">Mobility work</div>
-    <div class="ex-block"><div class="ex-top"><span class="ex-name">Hip flexor stretch</span><span class="ex-detail">2 × 60s/side</span></div></div>
-    <div class="ex-block"><div class="ex-top"><span class="ex-name">Hamstring stretch</span><span class="ex-detail">2 × 60s/side</span></div></div>
-    <div class="ex-block"><div class="ex-top"><span class="ex-name">Thoracic spine mobility</span><span class="ex-detail">2 × 10 reps</span></div></div>
-    <div class="ex-block" style="border:none"><div class="ex-top"><span class="ex-name">Light walk or yoga flow</span><span class="ex-detail">10–20 min</span></div></div>
-  </div>
 </div>
 
 <!-- FRIDAY -->
 <div class="day-card" id="day-fri">
   <div class="day-header" onclick="toggleDay('fri')">
     <div class="day-dot" style="background:var(--gym)"></div>
-    <div class="day-info"><div class="day-name">Friday</div><div class="day-focus">Legs · Quads / Hamstrings / Glutes</div></div>
+    <div class="day-info"><div class="day-name">Friday</div><div class="day-focus">Pull · Back / Biceps + Core</div></div>
     <span class="day-badge badge-gym">Gym</span><span class="chevron">›</span>
   </div>
   <div class="body" id="body-fri"></div>
-</div>
-
-<!-- SATURDAY -->
-<div class="day-card" id="day-sat">
-  <div class="day-header" onclick="toggleDay('sat')">
-    <div class="day-dot" style="background:var(--outdoor)"></div>
-    <div class="day-info"><div class="day-name">Saturday</div><div class="day-focus">HIIT Circuit · 25–35 min</div></div>
-    <span class="day-badge badge-outdoor">Outdoor</span><span class="chevron">›</span>
-  </div>
-  <div class="body">
-    <div class="ex-section">Sprints</div>
-    <div class="ex-block"><div class="ex-top"><span class="ex-name">Sprint intervals</span><span class="ex-detail">8 × 20s on / 40s off</span></div></div>
-    <div class="ex-section">Circuit (2–3 rounds)</div>
-    <div class="ex-block"><div class="ex-top"><span class="ex-name">Push-ups</span><span class="ex-detail">15 reps</span></div></div>
-    <div class="ex-block"><div class="ex-top"><span class="ex-name">Jump squats</span><span class="ex-detail">12 reps</span></div></div>
-    <div class="ex-block"><div class="ex-top"><span class="ex-name">Mountain climbers</span><span class="ex-detail">20/side</span></div></div>
-    <div class="ex-block"><div class="ex-top"><span class="ex-name">Burpees</span><span class="ex-detail">10 reps</span></div></div>
-    <div class="ex-block" style="border:none"><div class="ex-top"><span class="ex-name">Cool-down walk</span><span class="ex-detail">10 min</span></div></div>
-  </div>
-</div>
-
-<!-- SUNDAY -->
-<div class="day-card" id="day-sun">
-  <div class="day-header" onclick="toggleDay('sun')">
-    <div class="day-dot" style="background:var(--rest)"></div>
-    <div class="day-info"><div class="day-name">Sunday</div><div class="day-focus">Full Rest · Recovery</div></div>
-    <span class="day-badge badge-rest">Rest</span><span class="chevron">›</span>
-  </div>
-  <div class="body">
-    <div class="ex-section">Recovery</div>
-    <div class="ex-block"><div class="ex-top"><span class="ex-name">Casual walking only</span><span class="ex-detail">steps count</span></div></div>
-    <div class="ex-block" style="border:none"><div class="ex-top"><span class="ex-name">Sleep 7–9 hours</span><span class="ex-detail">priority</span></div></div>
-  </div>
 </div>
 
 <div style="height:20px"></div>
@@ -262,13 +265,57 @@
 
 <!-- ======= NOTES TAB ======= -->
 <div id="tab-notes" class="hidden">
-  <div class="section-title" style="margin-top:4px;">Key reminders</div>
-  <div class="note-card"><p><strong>Progressive overload:</strong> Add weight or 1 rep each week on main lifts. Log every session.</p></div>
-  <div class="note-card"><p><strong>Protein first:</strong> Hit 190g even on rest days. Chicken, eggs, Greek yogurt, lean beef, cottage cheese, fish.</p></div>
-  <div class="note-card"><p><strong>Weight loss rate:</strong> Aim for 0.5–1.5 lbs/week. Losing more? Add 150–200 kcal/day to protect muscle.</p></div>
-  <div class="note-card"><p><strong>Your 10k steps</strong> burn an extra 400–500 kcal vs sedentary — this is your hidden advantage.</p></div>
-  <div class="note-card"><p><strong>Data is saved locally</strong> in your browser. Keep this file on your phone and open it in the same browser to retain your logs.</p></div>
-  <div class="footer"><p>Goal: 215 lbs → 190–200 lbs · ~12–20 weeks</p></div>
+  <div class="section-title" style="margin-top:4px;">Fuelling</div>
+
+  <div class="note-card">
+    <p><strong>The calories went up, and that is correct.</strong> About 2,500 kcal/week of running was just added to the system. Eating 2,450 now would be a ~950 kcal/day deficit — that pace strips muscle, tanks quality-run performance, and is how people get injured 10 weeks into a block.</p>
+    <p>The deficit is in the food <strong>relative to the new workload</strong>, not in the raw number. Weekly-average TDEE is ~3,395; eating ~2,850 is a ~555 kcal/day deficit ≈ 1.1 lb/week.</p>
+  </div>
+
+  <div class="note-card">
+    <p><strong>Calorie cycling — eat to match the day.</strong> Protein (215 g) and fat (80 g) stay constant every day. Only carbs move.</p>
+    <table class="cyc-table">
+      <thead><tr><th>Day</th><th>Load</th><th class="num">kcal</th><th class="num">Carbs</th></tr></thead>
+      <tbody>
+        <tr><td class="day">Sun</td><td>Rest</td><td class="num">2,500</td><td class="num">230g</td></tr>
+        <tr><td class="day">Mon</td><td>Push lift</td><td class="num">2,750</td><td class="num">290g</td></tr>
+        <tr><td class="day">Tue</td><td>Quality run</td><td class="num">2,900</td><td class="num">330g</td></tr>
+        <tr><td class="day">Wed</td><td>Legs + easy</td><td class="num">3,000</td><td class="num">355g</td></tr>
+        <tr><td class="day">Thu</td><td>Rest</td><td class="num">2,500</td><td class="num">230g</td></tr>
+        <tr><td class="day">Fri</td><td>Pull + easy</td><td class="num">2,900</td><td class="num">330g</td></tr>
+        <tr class="peak"><td class="day">Sat</td><td>Long run</td><td class="num">3,350</td><td class="num">440g</td></tr>
+      </tbody>
+      <tfoot><tr><td colspan="2">Weekly average</td><td class="num">2,843</td><td class="num">✓</td></tr></tfoot>
+    </table>
+    <p>This is optional — hitting 2,850 flat every day works fine and is simpler. Cycling just puts the fuel where the work is.</p>
+  </div>
+
+  <div class="note-card">
+    <p><strong>Recalibration.</strong> Bodyweight is an input, not a constant. Every 10 lb lost, subtract ~50 kcal from baseline. As Runna builds mileage toward the race (likely 25–30 mi/week by November), add roughly +140 kcal per extra weekly mile ÷ 7 — around <strong>+250 kcal/day at peak mileage</strong>. Holding 2,850 through a 30 mi/week block would be under-fuelling.</p>
+    <p>Adjust on the <strong>4-week trend</strong>, not the scale on any given morning. Glycogen and fluid shifts from a long run can swing weight 3–4 lb overnight and mean nothing. Do not re-derive the baseline from step counts — the formula's error (~±300 kcal) is wider than the gap between a 10k and a 15k step day.</p>
+  </div>
+
+  <div class="section-title">Progression to race day</div>
+  <div class="note-card">
+    <p><strong>Base</strong> (now → ~Oct 10): full program as written. Add weight or 1 rep per week on the top compound of each day.</p>
+    <p><strong>Build</strong> (~Oct 10 → Nov 14): hold intensity, cut accessories from 3 sets to 2 as mileage climbs. Keep the soleus work at full volume — it is injury insurance.</p>
+    <p><strong>Taper</strong> (final 2–3 weeks): 2 sets across the board, and <strong>cut Bulgarian split squats entirely</strong>. Never approach failure.</p>
+    <p>When run volume and lifting volume conflict in the last month, <strong>the running wins</strong> — that's the event being trained for.</p>
+  </div>
+
+  <div class="section-title">Backup</div>
+  <div class="note-card">
+    <p><strong>Data is saved locally</strong> in your browser. Clearing your browsing data will erase your logs — back up regularly.</p>
+    <div class="backup-status" id="backup-status"></div>
+    <div class="backup-actions">
+      <button class="btn-save" onclick="exportData()">Export backup</button>
+      <button class="btn-clear" onclick="document.getElementById('import-file').click()">Import</button>
+    </div>
+    <input type="file" id="import-file" accept="application/json,.json" onchange="importData(this)" style="display:none">
+    <div class="backup-msg" id="backup-msg"></div>
+  </div>
+
+  <div class="footer"><p>215 lbs → 190–200 lbs · Half marathon, early Dec</p></div>
 </div>
 
 <script>
@@ -276,42 +323,54 @@ const DAYS = {
   mon: {
     sections: [
       { label: 'Compound lifts', exercises: [
-        { id: 'mon-bench',    name: 'Barbell bench press',       detail: '4 × 6–8',   sets: 4 },
-        { id: 'mon-ohp',      name: 'Overhead press (BB or DB)', detail: '3 × 8–10',  sets: 3 },
-        { id: 'mon-incline',  name: 'Incline dumbbell press',    detail: '3 × 10–12', sets: 3 },
+        { id: 'bench',            name: 'Barbell bench press',            detail: '4 × 5–8',   sets: 4 },
+        { id: 'incline-db-press', name: 'Incline dumbbell press',         detail: '3 × 8–10',  sets: 3 },
+        { id: 'ohp',              name: 'Seated dumbbell shoulder press', detail: '3 × 8–10',  sets: 3 },
       ]},
       { label: 'Accessories', exercises: [
-        { id: 'mon-lateral',  name: 'Lateral raises',            detail: '3 × 15',    sets: 3 },
-        { id: 'mon-pushdown', name: 'Tricep pushdowns',          detail: '3 × 12–15', sets: 3 },
-        { id: 'mon-ohtri',    name: 'Overhead tricep extension', detail: '2 × 12',    sets: 2 },
+        { id: 'cable-fly',        name: 'Cable fly',                      detail: '2 × 12–15', sets: 2 },
+        { id: 'lateral-raise',    name: 'Lateral raise',                  detail: '3 × 12–15', sets: 3 },
+        { id: 'tricep-pushdown',  name: 'Tricep pushdown',                detail: '3 × 10–12', sets: 3 },
+        { id: 'oh-tricep-ext',    name: 'Overhead tricep extension',      detail: '2 × 12–15', sets: 2 },
+      ]},
+      { label: 'Core', exercises: [
+        { id: 'cable-crunch',     name: 'Cable crunch',                   detail: '3 × 12–15', sets: 3 },
       ]},
     ]
   },
   wed: {
     sections: [
       { label: 'Compound lifts', exercises: [
-        { id: 'wed-row',    name: 'Barbell or DB rows',          detail: '4 × 6–8',   sets: 4 },
-        { id: 'wed-lat',    name: 'Lat pulldown / pull-ups',     detail: '3 × 8–10',  sets: 3 },
-        { id: 'wed-cable',  name: 'Seated cable row',            detail: '3 × 10–12', sets: 3 },
+        { id: 'back-squat',            name: 'Barbell back squat',    detail: '4 × 5–6',   sets: 4 },
+        { id: 'rdl',                   name: 'Romanian deadlift',     detail: '3 × 6–8',   sets: 3 },
+        { id: 'bulgarian-split-squat', name: 'Bulgarian split squat', detail: '3 × 8 / leg', sets: 3 },
       ]},
       { label: 'Accessories', exercises: [
-        { id: 'wed-face',   name: 'Face pulls',                  detail: '3 × 15',    sets: 3 },
-        { id: 'wed-curl',   name: 'Barbell or DB curl',          detail: '3 × 10–12', sets: 3 },
-        { id: 'wed-hammer', name: 'Hammer curls',                detail: '2 × 12',    sets: 2 },
+        { id: 'leg-curl',          name: 'Seated leg curl',      detail: '3 × 10–12', sets: 3 },
+        { id: 'seated-calf-raise', name: 'Seated calf raise',    detail: '4 × 15–25 · bent knee', sets: 4 },
+        { id: 'hip-abduction',     name: 'Cable hip abduction',  detail: '2 × 15 / side', sets: 2 },
+      ]},
+      { label: 'Core', exercises: [
+        { id: 'hanging-leg-raise', name: 'Hanging leg raise',    detail: '3 × 10–15', sets: 3 },
+        { id: 'pallof-press',      name: 'Pallof press',         detail: '2 × 12 / side', sets: 2 },
       ]},
     ]
   },
   fri: {
     sections: [
       { label: 'Compound lifts', exercises: [
-        { id: 'fri-squat', name: 'Barbell back squat',     detail: '4 × 5–8',   sets: 4 },
-        { id: 'fri-rdl',   name: 'Romanian deadlift',      detail: '3 × 8–10',  sets: 3 },
-        { id: 'fri-press', name: 'Leg press',              detail: '3 × 10–12', sets: 3 },
+        { id: 'lat-pulldown',     name: 'Weighted pull-up or lat pulldown', detail: '4 × 6–10',  sets: 4 },
+        { id: 'barbell-row',      name: 'Chest-supported row',              detail: '3 × 8–10',  sets: 3 },
+        { id: 'seated-cable-row', name: 'Seated cable row',                 detail: '3 × 10–12', sets: 3 },
       ]},
       { label: 'Accessories', exercises: [
-        { id: 'fri-lunge', name: 'Walking lunges',         detail: '3 × 12/leg', sets: 3 },
-        { id: 'fri-curl',  name: 'Leg curl (machine)',     detail: '3 × 12',     sets: 3 },
-        { id: 'fri-calf',  name: 'Calf raises',            detail: '3 × 15–20',  sets: 3 },
+        { id: 'face-pull',   name: 'Face pull',   detail: '3 × 15–20', sets: 3 },
+        { id: 'bb-curl',     name: 'EZ bar curl', detail: '3 × 8–10',  sets: 3 },
+        { id: 'hammer-curl', name: 'Hammer curl', detail: '2 × 10–12', sets: 2 },
+      ]},
+      { label: 'Core', exercises: [
+        { id: 'ab-wheel',   name: 'Ab wheel rollout', detail: '3 × 8–12', sets: 3 },
+        { id: 'side-plank', name: 'Side plank',       detail: '2 × 30–45s / side', sets: 2 },
       ]},
     ]
   }
@@ -319,9 +378,103 @@ const DAYS = {
 
 const DAY_LABELS = {
   mon: 'Monday — Push',
-  wed: 'Wednesday — Pull',
-  fri: 'Friday — Legs'
+  wed: 'Wednesday — Lower Body',
+  fri: 'Friday — Pull'
 };
+
+/* ===================== ID MIGRATION (day-prefixed → day-agnostic) =====================
+   Old keys were prefixed by day (`wl_fri-squat`). This program moves legs to Wednesday
+   and pull to Friday, so the old prefixes are now actively misleading. Storage keys are
+   remapped once; DAYS itself only ever uses day-agnostic ids. */
+
+const ID_MIGRATION = {
+  'mon-bench':    'bench',
+  'mon-ohp':      'ohp',
+  'mon-incline':  'incline-db-press',
+  'mon-lateral':  'lateral-raise',
+  'mon-pushdown': 'tricep-pushdown',
+  'mon-ohtri':    'oh-tricep-ext',
+  'wed-row':      'barbell-row',
+  'wed-lat':      'lat-pulldown',
+  'wed-cable':    'seated-cable-row',
+  'wed-face':     'face-pull',
+  'wed-curl':     'bb-curl',
+  'wed-hammer':   'hammer-curl',
+  'fri-squat':    'back-squat',
+  'fri-rdl':      'rdl',
+  'fri-curl':     'leg-curl',
+  'fri-calf':     'standing-calf-raise',  // retired from the program — history kept
+  'fri-press':    'leg-press',            // retired from the program — history kept
+  'fri-lunge':    'walking-lunge'         // retired from the program — history kept
+};
+
+const MIGRATION_FLAG = 'wsched_migrated_v2';
+
+// Exercises no longer programmed. Their history is real and stays in storage;
+// the History tab surfaces it under "Archived".
+const ARCHIVED_NAMES = {
+  'leg-press':           'Leg press',
+  'walking-lunge':       'Walking lunges',
+  'standing-calf-raise': 'Standing calf raise'
+};
+
+function isEntry(e) {
+  return !!e && typeof e.date === 'string' && Array.isArray(e.sets);
+}
+
+function parseLogs(raw) {
+  try {
+    const v = JSON.parse(raw);
+    return Array.isArray(v) ? v.filter(isEntry) : [];
+  } catch (e) { return []; }
+}
+
+// Union by date. `newer` wins any same-date collision, per the migration rules.
+function mergeByDate(newer, older) {
+  const byDate = {};
+  older.forEach(e => { if (isEntry(e)) byDate[e.date] = e; });
+  newer.forEach(e => { if (isEntry(e)) byDate[e.date] = e; });
+  return Object.values(byDate).sort((a, b) => new Date(b.date) - new Date(a.date));
+}
+
+/* Idempotent by construction: merging is a union over dates, and each old key is removed
+   once folded in. Running this twice cannot duplicate or destroy entries — the flag is
+   only there to skip the work, not to guarantee correctness. Deliberately does NOT
+   truncate to 30 entries; capping here could discard real history. */
+function migrateIds() {
+  if (localStorage.getItem(MIGRATION_FLAG)) return;
+
+  Object.keys(ID_MIGRATION).forEach(oldId => {
+    const newId = ID_MIGRATION[oldId];
+    if (oldId === newId) return;
+
+    const oldKey = 'wl_' + oldId;
+    const raw = localStorage.getItem(oldKey);
+    if (raw === null) return;
+
+    const merged = mergeByDate(loadLogs(newId), parseLogs(raw));
+    if (merged.length) saveLogs(newId, merged);
+    localStorage.removeItem(oldKey);
+  });
+
+  localStorage.setItem(MIGRATION_FLAG, String(Date.now()));
+}
+
+function programmedIds() {
+  const set = {};
+  Object.values(DAYS).forEach(day => {
+    day.sections.forEach(sec => sec.exercises.forEach(ex => { set[ex.id] = true; }));
+  });
+  return set;
+}
+
+function archivedName(exId) {
+  if (ARCHIVED_NAMES[exId]) return ARCHIVED_NAMES[exId];
+  const words = exId.replace(/-/g, ' ');
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
+/* ===================== LOGGING ===================== */
 
 function todayStr() {
   return new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -341,11 +494,12 @@ function buildDayBody(dayId) {
   if (body.dataset.built) return;
   body.dataset.built = '1';
 
+  const sections = DAYS[dayId].sections;
   let html = '';
-  DAYS[dayId].sections.forEach(sec => {
+  sections.forEach((sec, si) => {
     html += `<div class="ex-section">${sec.label}</div>`;
     sec.exercises.forEach((ex, ei) => {
-      const isLast = (sec === DAYS[dayId].sections[DAYS[dayId].sections.length-1]) && ei === sec.exercises.length-1;
+      const isLast = si === sections.length - 1 && ei === sec.exercises.length - 1;
       html += `<div class="ex-block" ${isLast ? 'style="border:none"' : ''}>
         <div class="ex-top"><span class="ex-name">${ex.name}</span><span class="ex-detail">${ex.detail}</span></div>
         <div class="log-area" id="la-${ex.id}"></div>
@@ -355,7 +509,7 @@ function buildDayBody(dayId) {
   body.innerHTML = html;
 
   // Now build inputs for each exercise
-  DAYS[dayId].sections.forEach(sec => {
+  sections.forEach(sec => {
     sec.exercises.forEach(ex => buildInputs(ex.id, ex.sets));
   });
 }
@@ -438,6 +592,17 @@ function clearLog(exId, numSets) {
   renderPast(exId);
 }
 
+function setsSummary(entry) {
+  return entry.sets
+    .filter(s => s.w || s.r)
+    .map(s => [s.w ? s.w + 'lb' : '', s.r ? s.r + 'r' : ''].filter(Boolean).join('/'))
+    .join(' · ');
+}
+
+function bestWeight(entry) {
+  return entry.sets.reduce((m, s) => Math.max(m, parseFloat(s.w) || 0), 0);
+}
+
 function renderPast(exId) {
   const el = document.getElementById('past-' + exId);
   if (!el) return;
@@ -447,14 +612,10 @@ function renderPast(exId) {
 
   let html = '<div class="past-entries"><div class="past-title">Previous sessions</div>';
   recent.forEach(entry => {
-    const parts = entry.sets
-      .filter(s => s.w || s.r)
-      .map(s => [s.w ? s.w + 'lb' : '', s.r ? s.r + 'r' : ''].filter(Boolean).join('/'));
-    const setsStr = parts.join(' · ');
-    const best = Math.max(...entry.sets.map(s => parseFloat(s.w) || 0));
+    const best = bestWeight(entry);
     html += `<div class="past-entry">
       <span class="past-date">${entry.date}</span>
-      <span class="past-sets-txt">${setsStr}</span>
+      <span class="past-sets-txt">${setsSummary(entry)}</span>
       ${best > 0 ? `<span class="past-best">${best}lb</span>` : ''}
     </div>`;
   });
@@ -477,6 +638,18 @@ function showTab(name) {
     el.classList.toggle('active', ['schedule','history','notes'][i] === name);
   });
   if (name === 'history') renderHistory();
+  if (name === 'notes') renderBackupStatus();
+}
+
+function historyRowsHtml(logs) {
+  return logs.slice(0, 8).map(entry => {
+    const best = bestWeight(entry);
+    return `<div class="history-row">
+      <span class="history-row-date">${entry.date}</span>
+      <span class="history-row-sets">${setsSummary(entry)}</span>
+      ${best > 0 ? `<span class="history-row-best">${best}lb</span>` : ''}
+    </div>`;
+  }).join('');
 }
 
 function renderHistory() {
@@ -491,18 +664,7 @@ function renderHistory() {
         const logs = loadLogs(ex.id);
         if (!logs.length) return;
         hasAny = true;
-        let rowsHtml = logs.slice(0, 8).map(entry => {
-          const parts = entry.sets
-            .filter(s => s.w || s.r)
-            .map(s => [s.w ? s.w+'lb' : '', s.r ? s.r+'r' : ''].filter(Boolean).join('/'));
-          const best = Math.max(...entry.sets.map(s => parseFloat(s.w) || 0));
-          return `<div class="history-row">
-            <span class="history-row-date">${entry.date}</span>
-            <span class="history-row-sets">${parts.join(' · ')}</span>
-            ${best > 0 ? `<span class="history-row-best">${best}lb</span>` : ''}
-          </div>`;
-        }).join('');
-        dayHtml += `<div class="history-ex-card"><div class="history-ex-name">${ex.name}</div>${rowsHtml}</div>`;
+        dayHtml += `<div class="history-ex-card"><div class="history-ex-name">${ex.name}</div>${historyRowsHtml(logs)}</div>`;
       });
     });
     if (dayHtml) {
@@ -510,10 +672,183 @@ function renderHistory() {
     }
   }
 
+  // Archived: any wl_* key that is not part of the current program. Retired exercises
+  // still hold real training history and must stay visible, not silently swallowed.
+  const programmed = programmedIds();
+  const archived = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (!key || key.indexOf('wl_') !== 0) continue;
+    const exId = key.slice(3);
+    if (programmed[exId]) continue;
+    const logs = loadLogs(exId);
+    if (!logs.length) continue;
+    archived.push({ name: archivedName(exId), logs: logs });
+  }
+
+  if (archived.length) {
+    hasAny = true;
+    archived.sort((a, b) => a.name.localeCompare(b.name));
+    html += '<div class="history-day-title">Archived</div>';
+    html += '<div class="history-note">No longer in the program. History kept and still included in backups.</div>';
+    archived.forEach(item => {
+      html += `<div class="history-ex-card archived"><div class="history-ex-name">${item.name}</div>${historyRowsHtml(item.logs)}</div>`;
+    });
+  }
+
   container.innerHTML = hasAny
     ? html
     : '<div class="no-history">No workouts logged yet.<br>Open a gym day and save your sets.</div>';
 }
+
+/* ===================== BACKUP: EXPORT / IMPORT ===================== */
+
+const BACKUP_KEY = 'wsched_lastBackup';
+
+function collectAllLogs() {
+  const out = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (!key || key.indexOf('wl_') !== 0) continue;
+    try {
+      const val = JSON.parse(localStorage.getItem(key));
+      if (Array.isArray(val) && val.length) out[key.slice(3)] = val;
+    } catch (e) { /* skip unparseable key */ }
+  }
+  return out;
+}
+
+function backupMsg(text, isWarn) {
+  const el = document.getElementById('backup-msg');
+  if (!el) return;
+  el.textContent = text;
+  el.classList.toggle('warn', !!isWarn);
+  el.classList.add('show');
+  clearTimeout(backupMsg._t);
+  backupMsg._t = setTimeout(() => el.classList.remove('show'), 5000);
+}
+
+function renderBackupStatus() {
+  const el = document.getElementById('backup-status');
+  if (!el) return;
+  const logs = collectAllLogs();
+  const sessions = Object.values(logs).reduce((n, arr) => n + arr.length, 0);
+  const last = localStorage.getItem(BACKUP_KEY);
+  let line = sessions + ' logged session' + (sessions === 1 ? '' : 's') + ' across ' + Object.keys(logs).length + ' exercise' + (Object.keys(logs).length === 1 ? '' : 's');
+  if (last) {
+    const days = Math.floor((Date.now() - Number(last)) / 86400000);
+    line += ' · last backup ' + (days === 0 ? 'today' : days + ' day' + (days === 1 ? '' : 's') + ' ago');
+  } else if (sessions) {
+    line += ' · never backed up';
+  }
+  el.textContent = line;
+}
+
+function exportData() {
+  const logs = collectAllLogs();
+  if (!Object.keys(logs).length) { backupMsg('Nothing to export yet.', true); return; }
+
+  const payload = {
+    app: 'workout_schedule',
+    version: 2,
+    exportedAt: new Date().toISOString(),
+    logs: logs
+  };
+  const json = JSON.stringify(payload, null, 2);
+  const d = new Date();
+  const stamp = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  const filename = 'workout-backup-' + stamp + '.json';
+  const blob = new Blob([json], { type: 'application/json' });
+
+  const finish = () => {
+    localStorage.setItem(BACKUP_KEY, String(Date.now()));
+    renderBackupStatus();
+  };
+
+  // On phones, the share sheet is far more useful than a download.
+  if (navigator.canShare && navigator.share) {
+    try {
+      const file = new File([blob], filename, { type: 'application/json' });
+      if (navigator.canShare({ files: [file] })) {
+        navigator.share({ files: [file], title: 'Workout backup' })
+          .then(() => { finish(); backupMsg('Backup shared.'); })
+          .catch(err => { if (err && err.name !== 'AbortError') downloadBlob(blob, filename, finish); });
+        return;
+      }
+    } catch (e) { /* fall through to download */ }
+  }
+  downloadBlob(blob, filename, finish);
+}
+
+function downloadBlob(blob, filename, done) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  if (done) done();
+  backupMsg('Saved ' + filename);
+}
+
+function importData(input) {
+  const file = input.files && input.files[0];
+  input.value = '';               // allow re-picking the same file later
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onerror = () => backupMsg('Could not read that file.', true);
+  reader.onload = () => {
+    let data;
+    try { data = JSON.parse(reader.result); }
+    catch (e) { backupMsg('That file is not valid JSON.', true); return; }
+
+    const incoming = data && data.logs;
+    if (!incoming || typeof incoming !== 'object' || Array.isArray(incoming)) {
+      backupMsg('That does not look like a workout backup.', true);
+      return;
+    }
+
+    let added = 0, touched = 0;
+    Object.keys(incoming).forEach(rawId => {
+      const arr = incoming[rawId];
+      if (!Array.isArray(arr)) return;
+
+      // A backup taken before the rewrite carries day-prefixed ids. Normalise them the
+      // same way migrateIds() does, or restoring an old file would orphan its history.
+      const exId = ID_MIGRATION[rawId] || rawId;
+
+      const existing = loadLogs(exId);
+      const byDate = {};
+      // Existing entries win on conflict, so a stale backup never overwrites newer data.
+      arr.forEach(entry => { if (isEntry(entry)) byDate[entry.date] = entry; });
+      let newForThisEx = 0;
+      Object.keys(byDate).forEach(date => {
+        if (!existing.some(e => e.date === date)) newForThisEx++;
+      });
+      existing.forEach(entry => { if (entry && entry.date) byDate[entry.date] = entry; });
+
+      const merged = Object.values(byDate).sort((a, b) => new Date(b.date) - new Date(a.date));
+      if (merged.length > 30) merged.length = 30;
+      saveLogs(exId, merged);
+      added += newForThisEx;
+      if (newForThisEx) touched++;
+    });
+
+    renderBackupStatus();
+    if (document.getElementById('tab-history') && !document.getElementById('tab-history').classList.contains('hidden')) renderHistory();
+
+    backupMsg(added
+      ? 'Restored ' + added + ' session' + (added === 1 ? '' : 's') + ' across ' + touched + ' exercise' + (touched === 1 ? '' : 's') + '.'
+      : 'Already up to date — nothing new to restore.');
+  };
+  reader.readAsText(file);
+}
+
+migrateIds();
+renderBackupStatus();
 </script>
 </body>
 </html>
